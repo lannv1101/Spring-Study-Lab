@@ -2,6 +2,8 @@ package rewards.internal.restaurant;
 
 import common.money.Percentage;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import rewards.Dining;
 import rewards.internal.account.Account;
 
@@ -38,26 +40,28 @@ import java.sql.SQLException;
 
 public class JdbcRestaurantRepository implements RestaurantRepository {
 
-	private DataSource dataSource;
+//	private DataSource dataSource;
 
-	public JdbcRestaurantRepository(DataSource dataSource) {
-		this.dataSource = dataSource;
+	private JdbcTemplate jdbcTemplate;
+
+	public JdbcRestaurantRepository(JdbcTemplate jdbcTemplate) {
+		this.jdbcTemplate = jdbcTemplate;
 	}
 
 	public Restaurant findByMerchantNumber(String merchantNumber) {
 		String sql = "select MERCHANT_NUMBER, NAME, BENEFIT_PERCENTAGE, BENEFIT_AVAILABILITY_POLICY"
 				+ " from T_RESTAURANT where MERCHANT_NUMBER = ?";
-		Restaurant restaurant = null;
+		Restaurant restaurant = jdbcTemplate.queryForObject(sql, new Object[]{merchantNumber}, new RestaurantRowMapper());
 
-		try (Connection conn = dataSource.getConnection();
-			 PreparedStatement ps = conn.prepareStatement(sql) ){
-			ps.setString(1, merchantNumber);
-			ResultSet rs = ps.executeQuery();
-			advanceToNextRow(rs);
-			restaurant = mapRestaurant(rs);
-		} catch (SQLException e) {
-			throw new RuntimeException("SQL exception occurred finding by merchant number", e);
-		}
+//		try (Connection conn = dataSource.getConnection();
+//			 PreparedStatement ps = conn.prepareStatement(sql) ){
+//			ps.setString(1, merchantNumber);
+//			ResultSet rs = ps.executeQuery();
+//			advanceToNextRow(rs);
+//			restaurant = mapRestaurant(rs);
+//		} catch (SQLException e) {
+//			throw new RuntimeException("SQL exception occurred finding by merchant number", e);
+//		}
 
 		return restaurant;
 	}
@@ -145,4 +149,11 @@ public class JdbcRestaurantRepository implements RestaurantRepository {
 			return "neverAvailable";
 		}
 	}
+
+	private class RestaurantRowMapper implements RowMapper<Restaurant> {
+		public Restaurant mapRow(ResultSet rs, int rowNum) throws SQLException {
+			return mapRestaurant(rs);
+		}
+	}
+
 }
