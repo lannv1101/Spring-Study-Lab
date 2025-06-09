@@ -1,13 +1,12 @@
 // TO-DO-01 : Add the Spring Boot Plugin
-
+apply plugin: "org.springframework.boot"
 
 dependencies {
     implementation project(':00-rewards-common')
 
     // TO-DO-02 : Refactor from discrete Spring Framework
     // dependency to JDBC Boot Starter
-    implementation 'org.springframework:spring-jdbc'
-    
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 }
 
 // Create original jar file with "gradlew assemble"
