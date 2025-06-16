@@ -9,5 +9,5 @@ dependencies {
 }
 
 test {
-    exclude '**/AccountClientTests.class'
+//    exclude '**/AccountClientTests.class'
 }
